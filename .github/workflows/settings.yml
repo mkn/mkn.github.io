@@ -74,15 +74,21 @@ jobs:
           KLOG: 3
         run: |
           ../mkn.exe -v
-          $props = @()
-          # msvc_paths*: no Developer prompt; the runner's install found as the page describes
+          $settings = "$env:GITHUB_WORKSPACE/settings/${{ matrix.os }}/${{ matrix.file }}"
+          # msvc_paths*: no Developer prompt; its properties set to the runner's install, found as
+          #  the page describes, in a copy, as a user edits the file
           if ("${{ matrix.file }}" -like "msvc_paths*") {
             $vs = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -property installationPath
             $ver = (Get-Content "$vs\VC\Auxiliary\Build\Microsoft.VCToolsVersion.default.txt").Trim()
             $sdk = "${env:ProgramFiles(x86)}\Windows Kits\10"
             $sdkver = (Get-ChildItem "$sdk\Include" | Where-Object { Test-Path "$($_.FullName)\um\windows.h" } | Sort-Object Name | Select-Object -Last 1).Name
-            $props = @("-P", "msvc=$vs/VC/Tools/MSVC/$ver,sdk=$sdk,sdk.version=$sdkver" -replace '\\','/')
-            "properties: $($props[1])"
+            $text = (Get-Content $settings -Raw) `
+              -replace '(?m)^  msvc: .*$', ("  msvc: $vs/VC/Tools/MSVC/$ver" -replace '\\','/') `
+              -replace '(?m)^  sdk: .*$', ("  sdk: $sdk" -replace '\\','/') `
+              -replace '(?m)^  sdk\.version: .*$', "  sdk.version: $sdkver"
+            $settings = "$env:RUNNER_TEMP/${{ matrix.file }}"
+            Set-Content $settings $text
+            Get-Content $settings
           }
-          ../mkn.exe clean build test run -p app -q -x "$env:GITHUB_WORKSPACE/settings/${{ matrix.os }}/${{ matrix.file }}" @props
+          ../mkn.exe clean build test run -p app -q -x $settings
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
