@@ -81,6 +81,56 @@ jobs:
             compiler: cl -std:c++20 -EHsc
             linker: link
           "@ -replace '(?m)^          ','' | Set-Content try/B_props.yaml
+          $nm = $env:MSVC -replace '/','\'; $ns = $env:SDK -replace '/','\'
+          # D: native backslash paths, double quoted
+          @"
+          super: settings
+          inc: |
+            "$ns\Include\$v\ucrt"
+            "$ns\Include\$v\um"
+            "$ns\Include\$v\shared"
+            "$nm\include"
+          path: |
+            "$ns\Lib\$v\um\x64"
+            "$ns\Lib\$v\ucrt\x64"
+            "$nm\lib\x64"
+          env:
+          - name: PATH
+            value: $nm\bin\HostX64\x64
+          file:
+          - type: cpp:cxx:cc:c
+            archiver: lib
+            compiler: cl -std:c++20 -EHsc
+            linker: link
+          "@ -replace '(?m)^          ','' | Set-Content try/D_quoted_native.yaml
+          # E: raw (unescaped) property values, quoted inc/path lines
+          @"
+          super: settings
+          property:
+            msvc: $env:MSVC
+            sdk: $env:SDK
+            sdk.version: $v
+            arch: x64
+          inc: |
+            "`${msvc}/include"
+            "`${sdk}/Include/`${sdk.version}/ucrt"
+            "`${sdk}/Include/`${sdk.version}/um"
+            "`${sdk}/Include/`${sdk.version}/shared"
+          path: |
+            "`${msvc}/lib/`${arch}"
+            "`${sdk}/Lib/`${sdk.version}/ucrt/`${arch}"
+            "`${sdk}/Lib/`${sdk.version}/um/`${arch}"
+          env:
+          - name: PATH
+            value: `${msvc}/bin/HostX64/`${arch}
+          file:
+          - type: cpp:cxx:cc:c
+            archiver: lib
+            compiler: cl -std:c++20 -EHsc
+            linker: link
+          "@ -replace '(?m)^          ','' | Set-Content try/E_props_quoted.yaml
+          # F: native backslash paths, unquoted (expected to break: \ escapes)
+          (Get-Content try/D_quoted_native.yaml) -replace '^(\s+)"(.*)"$','$1$2' | Set-Content try/F_native_unquoted.yaml
           # C: x86 (32 bit), literal paths
           (Get-Content try/A_literal.yaml) -replace '/x64','/x86' -replace 'HostX64/x86','HostX86/x86' | Set-Content try/C_x86.yaml
           Get-ChildItem try | ForEach-Object { "== $($_.Name)"; Get-Content $_.FullName }
