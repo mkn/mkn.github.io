@@ -1,0 +1,110 @@
+name: windows_try
+
+# throwaway: which forms of MSVC/Windows SDK paths work in a settings file without vcvars
+on:
+  push:
+    branches: [windows-try]
+  workflow_dispatch:
+
+jobs:
+  try:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+      - run: curl.exe -fsSLo mkn.exe https://github.com/mkn/mkn/releases/latest/download/mkn.exe
+      - name: paths
+        run: |
+          $vs = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -property installationPath
+          $msvcver = (Get-Content "$vs\VC\Auxiliary\Build\Microsoft.VCToolsVersion.default.txt").Trim()
+          $sdk = "${env:ProgramFiles(x86)}\Windows Kits\10"
+          $sdkver = (Get-ChildItem "$sdk\Include" | Where-Object { Test-Path "$($_.FullName)\um\windows.h" } | Sort-Object Name | Select-Object -Last 1).Name
+          "vs=$vs"; "msvcver=$msvcver"; "sdk=$sdk"; "sdkver=$sdkver"
+          $msvc = "$vs\VC\Tools\MSVC\$msvcver" -replace '\\','/'
+          $sdkf = $sdk -replace '\\','/'
+          "MSVC=$msvc" >> $env:GITHUB_ENV; "SDK=$sdkf" >> $env:GITHUB_ENV; "SDKVER=$sdkver" >> $env:GITHUB_ENV
+          Get-ChildItem "$sdk\Include\$sdkver" | Select-Object -ExpandProperty Name
+      - name: candidates
+        run: |
+          function esc($p) { $p -replace ' ','\ ' }
+          $m = esc $env:MSVC; $s = esc $env:SDK; $v = $env:SDKVER
+          $rawbin = "$env:MSVC/bin/HostX64/x64"
+          # A: literal paths as the wiki (escaped spaces), env PATH unescaped
+          @"
+          super: settings
+          inc: |
+            $s/Include/$v/ucrt
+            $s/Include/$v/um
+            $s/Include/$v/shared
+            $m/include
+          path: |
+            $s/Lib/$v/um/x64
+            $s/Lib/$v/ucrt/x64
+            $m/lib/x64
+          env:
+          - name: PATH
+            mode: prepend
+            value: $rawbin
+          file:
+          - type: cpp:cxx:cc:c
+            archiver: lib
+            compiler: cl -std:c++20 -EHsc
+            linker: link
+          "@ -replace '(?m)^          ','' | Set-Content try/A_literal.yaml
+          # B: properties (escaped) for inc/path, a raw property for env PATH
+          @"
+          super: settings
+          property:
+            msvc: $m
+            msvc.bin: $rawbin
+            sdk: $s
+            sdk.version: $v
+            arch: x64
+          inc: |
+            `${msvc}/include
+            `${sdk}/Include/`${sdk.version}/ucrt
+            `${sdk}/Include/`${sdk.version}/um
+            `${sdk}/Include/`${sdk.version}/shared
+          path: |
+            `${msvc}/lib/`${arch}
+            `${sdk}/Lib/`${sdk.version}/ucrt/`${arch}
+            `${sdk}/Lib/`${sdk.version}/um/`${arch}
+          env:
+          - name: PATH
+            value: `${msvc.bin}
+          file:
+          - type: cpp:cxx:cc:c
+            archiver: lib
+            compiler: cl -std:c++20 -EHsc
+            linker: link
+          "@ -replace '(?m)^          ','' | Set-Content try/B_props.yaml
+          # C: x86 (32 bit), literal paths
+          (Get-Content try/A_literal.yaml) -replace '/x64','/x86' -replace 'HostX64/x86','HostX86/x86' | Set-Content try/C_x86.yaml
+          Get-ChildItem try | ForEach-Object { "== $($_.Name)"; Get-Content $_.FullName }
+      - name: build each
+        working-directory: example
+        run: |
+          foreach ($f in Get-ChildItem ../try/*.yaml) {
+            "################ $($f.Name)"
+            ../mkn.exe clean build test run -p app -q -x $f.FullName
+            "EXIT $($f.Name) $LASTEXITCODE"
+          }
+          exit 0
+      - name: csharp
+        run: |
+          mkdir cs; Set-Content cs/hello.cs 'class Hello { static void Main() { System.Console.WriteLine("hello mkn"); } }'
+          Set-Content cs/mkn.yaml "name: hello_cs`nmain: hello.cs"
+          @"
+          super: settings
+          env:
+            - name: PATH
+              mode: prepend
+              value: C:/Windows/Microsoft.NET/Framework64/v4.0.30319
+          file:
+            - type: cs
+              compiler: csc
+              linker: csc
+          "@ -replace '(?m)^          ','' | Set-Content try/csharp.yaml
+          cd cs; ../mkn.exe clean build run -q -x ../try/csharp.yaml; "EXIT csharp $LASTEXITCODE"; exit 0
