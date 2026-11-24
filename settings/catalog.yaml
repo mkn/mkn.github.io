@@ -8,6 +8,8 @@ linux:
     - {file: clang.yaml, title: clang, tags: [clang], ci: ubuntu-24.04}
     - {file: gcc_versioned.yaml, title: A versioned gcc, tags: [gcc, mask], ci: ubuntu-24.04}
     - {file: clang_versioned.yaml, title: A versioned clang, tags: [clang, mask], ci: ubuntu-24.04}
+    - {file: ccache_gcc.yaml, title: gcc with ccache, tags: [gcc, ccache], ci: ubuntu-24.04}
+    - {file: ccache_clang.yaml, title: clang with ccache, tags: [clang, ccache], ci: ubuntu-24.04}
     - {file: ccache_mold.yaml, title: ccache and mold, tags: [gcc, ccache, mold], ci: ubuntu-24.04}
     - {file: asan.yaml, title: AddressSanitizer, tags: [gcc, sanitizer], ci: ubuntu-24.04}
     - {file: coverage.yaml, title: Coverage, tags: [gcc, coverage], ci: ubuntu-24.04}
@@ -23,6 +25,37 @@ macos:
     - {file: gcc_homebrew.yaml, title: Homebrew gcc, tags: [gcc, mask], ci: macos-latest}
 windows:
   title: Windows
+  intro: |
+    MSVC's `cl` and `link` find headers and libraries through the `INCLUDE`, `LIB` and `PATH`
+    environment variables, which `vcvarsall.bat` sets: a *Developer Command Prompt* or
+    *Developer PowerShell* is one with them set. From one, settings need only name the tools
+    ([MSVC](#windows-msvc)); mkn's own default settings file is then written with those paths. Without
+    one, a settings file gives the same paths itself ([MSVC without a Developer prompt](#windows-msvc-paths)).
+    They come from two places:
+
+    | | Directory | Include | Libraries | Tools |
+    |---|---|---|---|---|
+    | MSVC toolset | `<Visual Studio>/VC/Tools/MSVC/<version>` | `include` | `lib/<arch>` | `bin/HostX64/<arch>` |
+    | Windows SDK | `C:/Program Files (x86)/Windows Kits/10` | `Include/<version>/ucrt`, `um`, `shared` | `Lib/<version>/ucrt/<arch>`, `um/<arch>` | |
+
+    `<arch>` is `x64` or `x86` (32 bit). The installed versions:
+
+    - Visual Studio: `"C:/Program Files (x86)/Microsoft Visual Studio/Installer/vswhere.exe" -latest -property installationPath`
+    - MSVC toolset: `<Visual Studio>/VC/Auxiliary/Build/Microsoft.VCToolsVersion.default.txt`, or the directories in `VC/Tools/MSVC`
+    - Windows SDK: the directories in `Windows Kits/10/Include` (`um/windows.h` in the one used)
+    - or all of it at once: `echo %INCLUDE%` and `echo %LIB%` in a Developer Command Prompt
+
+    **Paths with spaces** (`Program Files`, `Windows Kits`): `inc:` and `path:` entries are split
+    like a command line, where outside quotes a backslash escapes the next character. Either quote
+    each path, with backslashes or forward slashes: `"C:\Program Files (x86)\Windows Kits\10\Include"`,
+    or use forward slashes and escape the spaces: `C:/Program\ Files\ (x86)/Windows\ Kits/10/Include`.
+    Unquoted backslash paths do not work. Quotes need a YAML block (`inc: |`, one path a line): a
+    plain `inc: "..."` has YAML remove them. A `property:` holding a path holds it raw, spaces and
+    all, and the lines using it are quoted. `env:` values are raw too.
   entries:
     - {file: msvc.yaml, title: MSVC, tags: [msvc], ci: windows-latest}
+    - {file: msvc_paths.yaml, title: MSVC without a Developer prompt, tags: [msvc, windows sdk], ci: windows-latest}
+    - {file: msvc_paths_x86.yaml, title: 32 bit MSVC without a Developer prompt, tags: [msvc, windows sdk, x86], ci: windows-latest}
+    - {file: msvc_2015.yaml, title: Visual Studio 2015 and older, tags: [msvc, windows sdk]}
     - {file: clang.yaml, title: clang, tags: [clang], ci: windows-latest}
+    - {file: csharp.yaml, title: "C#", tags: [csharp]}

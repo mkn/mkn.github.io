@@ -1,0 +1,12 @@
+# clang and clang++ through ccache (llvm-ar: see clang.yaml)
+super: settings
+
+file:
+  - type: c
+    archiver: llvm-ar -cr
+    compiler: ccache clang
+    linker: clang
+  - type: cpp:cxx:cc
+    archiver: llvm-ar -cr
+    compiler: ccache clang++ -std=c++20
+    linker: clang++

@@ -1,0 +1,12 @@
+# gcc and g++ through ccache: unchanged sources are not compiled again, across clean builds too
+super: settings
+
+file:
+  - type: c
+    archiver: ar -cr
+    compiler: ccache gcc
+    linker: gcc
+  - type: cpp:cxx:cc
+    archiver: ar -cr
+    compiler: ccache g++ -std=c++20
+    linker: g++

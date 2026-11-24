@@ -1,0 +1,25 @@
+# Visual Studio 2015 (MSVC 14.0) and older: one VC directory, VC/include, VC/lib/amd64 and
+#  VC/bin/amd64 for 64 bit (VC/lib and VC/bin for 32 bit), with a Windows 10 SDK. Written with
+#  forward slashes and backslash escaped spaces, the other form paths with spaces can take
+super: settings
+
+inc: |
+  C:/Program\ Files\ (x86)/Windows\ Kits/10/Include/10.0.10240.0/ucrt
+  C:/Program\ Files\ (x86)/Windows\ Kits/10/Include/10.0.10240.0/um
+  C:/Program\ Files\ (x86)/Windows\ Kits/10/Include/10.0.10240.0/shared
+  C:/Program\ Files\ (x86)/Microsoft\ Visual\ Studio\ 14.0/VC/include
+
+path: |
+  C:/Program\ Files\ (x86)/Windows\ Kits/10/Lib/10.0.10240.0/um/x64
+  C:/Program\ Files\ (x86)/Windows\ Kits/10/Lib/10.0.10240.0/ucrt/x64
+  C:/Program\ Files\ (x86)/Microsoft\ Visual\ Studio\ 14.0/VC/lib/amd64
+
+env:
+  - name: PATH
+    value: C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/bin/amd64
+
+file:
+  - type: cpp:cxx:cc:c
+    archiver: lib
+    compiler: cl -EHsc
+    linker: link

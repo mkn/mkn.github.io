@@ -1,0 +1,31 @@
+# MSVC without a Developer Command Prompt: the MSVC toolset's and Windows SDK's include, library
+#  and bin directories given here, as vcvarsall.bat sets them in INCLUDE, LIB and PATH. Set the
+#  four properties for your install (see above); their values are raw, the lines using them quoted
+super: settings
+
+property:
+  msvc: C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.44.35207
+  sdk: C:/Program Files (x86)/Windows Kits/10
+  sdk.version: 10.0.26100.0
+  arch: x64
+
+inc: |
+  "${msvc}/include"
+  "${sdk}/Include/${sdk.version}/ucrt"
+  "${sdk}/Include/${sdk.version}/um"
+  "${sdk}/Include/${sdk.version}/shared"
+
+path: |
+  "${msvc}/lib/${arch}"
+  "${sdk}/Lib/${sdk.version}/ucrt/${arch}"
+  "${sdk}/Lib/${sdk.version}/um/${arch}"
+
+env:
+  - name: PATH
+    value: ${msvc}/bin/HostX64/${arch}
+
+file:
+  - type: cpp:cxx:cc:c
+    archiver: lib
+    compiler: cl -std:c++20 -EHsc
+    linker: link

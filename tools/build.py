@@ -187,7 +187,9 @@ def settings_page(out):
   project or in the settings directory, or <a href="{rel}" download>download</a> /
   <a href="{SITE_REPO}/blob/main/{rel}">view on GitHub</a></p>
 </article>""")
-        sections.append(f'<section><h2 id="{os_key}">{esc(group["title"])}</h2>{"".join(cards)}</section>')
+        intro = markdown.markdown(group["intro"], extensions=["fenced_code", "tables"]) if group.get("intro") else ""
+        sections.append(f'<section><h2 id="{os_key}">{esc(group["title"])}</h2>'
+                        f'<div class="prose intro">{intro}</div>{"".join(cards)}</section>')
     body = f"""
 <h1>Settings examples</h1>
 <p class="lead">A settings file says which compiler, archiver and linker build each file type,

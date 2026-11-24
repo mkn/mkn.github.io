@@ -1,0 +1,30 @@
+# 32 bit MSVC without a Developer Command Prompt: as msvc_paths.yaml with x86 libraries and the
+#  x86 hosted compiler (HostX64/x86 cross compiles from a 64 bit host as well)
+super: settings
+
+property:
+  msvc: C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.44.35207
+  sdk: C:/Program Files (x86)/Windows Kits/10
+  sdk.version: 10.0.26100.0
+  arch: x86
+
+inc: |
+  "${msvc}/include"
+  "${sdk}/Include/${sdk.version}/ucrt"
+  "${sdk}/Include/${sdk.version}/um"
+  "${sdk}/Include/${sdk.version}/shared"
+
+path: |
+  "${msvc}/lib/${arch}"
+  "${sdk}/Lib/${sdk.version}/ucrt/${arch}"
+  "${sdk}/Lib/${sdk.version}/um/${arch}"
+
+env:
+  - name: PATH
+    value: ${msvc}/bin/HostX86/${arch}
+
+file:
+  - type: cpp:cxx:cc:c
+    archiver: lib
+    compiler: cl -std:c++20 -EHsc
+    linker: link
