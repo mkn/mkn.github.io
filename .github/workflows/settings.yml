@@ -59,8 +59,20 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
 
       - name: mkn clean build test run -x settings/${{ matrix.os }}/${{ matrix.file }}
+        if: runner.os != 'Windows'
         working-directory: example
         run: |
-          [ -f ../mkn ] && chmod +x ../mkn
+          chmod +x ../mkn
           ../mkn -v
           KLOG=3 ../mkn clean build test run -p app -q -x "$GITHUB_WORKSPACE/settings/${{ matrix.os }}/${{ matrix.file }}"
+      # PowerShell, not Git Bash: Git's link.exe (coreutils) would come before MSVC's
+      - name: mkn clean build test run -x settings/${{ matrix.os }}/${{ matrix.file }}
+        if: runner.os == 'Windows'
+        working-directory: example
+        shell: pwsh
+        env:
+          KLOG: 3
+        run: |
+          ../mkn.exe -v
+          ../mkn.exe clean build test run -p app -q -x "$env:GITHUB_WORKSPACE/settings/${{ matrix.os }}/${{ matrix.file }}"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

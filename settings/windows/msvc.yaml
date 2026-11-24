@@ -1,6 +1,7 @@
 # MSVC: run mkn from a Developer Command Prompt / PowerShell (vcvarsall.bat), cl and link find
-#  their headers and libraries through INCLUDE and LIB. Without gcc or clang on PATH (or with
-#  MKN_CL_PREFERRED=1) the default settings file mkn writes is this, with those paths in it
+#  their headers and libraries through INCLUDE and LIB. Not from Git Bash: Git's own link.exe
+#  (coreutils) comes first on its PATH. Without gcc or clang on PATH (or with MKN_CL_PREFERRED=1)
+#  the default settings file mkn writes is this, with those paths in it
 super: settings
 
 file:
