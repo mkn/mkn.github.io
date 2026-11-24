@@ -28,6 +28,7 @@ jobs:
           Get-ChildItem "$sdk\Include\$sdkver" | Select-Object -ExpandProperty Name
       - name: candidates
         run: |
+          New-Item -ItemType Directory -Force try | Out-Null
           function esc($p) { $p -replace ' ','\ ' }
           $m = esc $env:MSVC; $s = esc $env:SDK; $v = $env:SDKVER
           $rawbin = "$env:MSVC/bin/HostX64/x64"
