@@ -1,0 +1,16 @@
+# CUDA compiled by clang: .cpp files as CUDA for one GPU architecture (sm_120: RTX 50xx, set
+#  yours), linked against the toolkit's cudart. llvm-ar: see clang.yaml
+super: settings
+
+property:
+  cuda.arch: 120
+  cuda: /usr/local/cuda
+
+inc: ${cuda}/targets/x86_64-linux/include
+path: ${cuda}/targets/x86_64-linux/lib
+
+file:
+  - type: cpp:cxx:cc
+    archiver: llvm-ar -cr
+    compiler: clang++ -std=c++20 -x cuda --cuda-gpu-arch=sm_${cuda.arch} -Wno-unknown-cuda-version
+    linker: clang++ -lcudart

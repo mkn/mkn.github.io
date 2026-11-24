@@ -1,0 +1,13 @@
+# a versioned clang (clang++-18 from apt.llvm.org or a distribution package): masked as clang++,
+#  with the llvm-ar of the same version
+super: settings
+
+compiler:
+  mask:
+    clang++: clang++-18
+
+file:
+  - type: cpp:cxx:cc
+    archiver: llvm-ar-18 -cr
+    compiler: clang++-18 -std=c++20
+    linker: clang++-18

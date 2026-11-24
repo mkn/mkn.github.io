@@ -1,0 +1,12 @@
+# Homebrew's gcc (brew install gcc): installed as g++-<version>, plain g++ is Apple clang
+super: settings
+
+compiler:
+  mask:
+    g++: g++-14
+
+file:
+  - type: cpp:cxx:cc
+    archiver: ar -cr
+    compiler: g++-14 -std=c++20
+    linker: g++-14

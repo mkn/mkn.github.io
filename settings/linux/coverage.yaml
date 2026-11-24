@@ -1,0 +1,10 @@
+# gcc coverage: build and run the tests without -O, then report, e.g. with gcovr:
+#  mkn clean build test -x coverage
+#  gcovr -r . --object-directory bin --html-details bin/cov/index.html
+super: settings
+
+file:
+  - type: cpp:cxx:cc
+    archiver: ar -cr
+    compiler: g++ -std=c++20 --coverage -fprofile-update=atomic
+    linker: g++ --coverage

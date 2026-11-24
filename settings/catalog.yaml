@@ -1,0 +1,28 @@
+# the settings gallery (settings.html): each entry a file under settings/<os>/, its leading
+#  comment is its description. ci: the runner .github/workflows/settings.yml builds the example
+#  project with it on (mkn clean build test run), none for files needing hardware CI lacks
+linux:
+  title: Linux
+  entries:
+    - {file: gcc.yaml, title: gcc, tags: [gcc], ci: ubuntu-24.04}
+    - {file: clang.yaml, title: clang, tags: [clang], ci: ubuntu-24.04}
+    - {file: gcc_versioned.yaml, title: A versioned gcc, tags: [gcc, mask], ci: ubuntu-24.04}
+    - {file: clang_versioned.yaml, title: A versioned clang, tags: [clang, mask], ci: ubuntu-24.04}
+    - {file: ccache_mold.yaml, title: ccache and mold, tags: [gcc, ccache, mold], ci: ubuntu-24.04}
+    - {file: asan.yaml, title: AddressSanitizer, tags: [gcc, sanitizer], ci: ubuntu-24.04}
+    - {file: coverage.yaml, title: Coverage, tags: [gcc, coverage], ci: ubuntu-24.04}
+    - {file: mpi.yaml, title: MPI, tags: [mpi, mask], ci: ubuntu-24.04}
+    - {file: cuda_clang.yaml, title: CUDA with clang, tags: [cuda, clang]}
+    - {file: cuda_nvcc.yaml, title: CUDA with nvcc, tags: [cuda, nvcc]}
+    - {file: hip_rocm.yaml, title: HIP with ROCm, tags: [hip, rocm, mask]}
+macos:
+  title: macOS
+  entries:
+    - {file: clang.yaml, title: Apple clang, tags: [clang], ci: macos-latest}
+    - {file: llvm_homebrew.yaml, title: Homebrew LLVM, tags: [clang, mask], ci: macos-latest}
+    - {file: gcc_homebrew.yaml, title: Homebrew gcc, tags: [gcc, mask], ci: macos-latest}
+windows:
+  title: Windows
+  entries:
+    - {file: msvc.yaml, title: MSVC, tags: [msvc], ci: windows-latest}
+    - {file: clang.yaml, title: clang, tags: [clang], ci: windows-latest}

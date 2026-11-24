@@ -1,0 +1,13 @@
+# a versioned gcc (g++-14 next to the distribution's default): the mask tells mkn that g++-14
+#  takes g++'s flags, the file entries name the binary
+super: settings
+
+compiler:
+  mask:
+    g++: g++-14
+
+file:
+  - type: cpp:cxx:cc
+    archiver: gcc-ar-14 -cr
+    compiler: g++-14 -std=c++20
+    linker: g++-14

@@ -1,0 +1,13 @@
+# MPI through the implementation's compiler wrapper (Open MPI, MPICH): masked as g++, the
+#  underlying compiler chosen by the wrapper (OMPI_CXX=clang++ for Open MPI)
+super: settings
+
+compiler:
+  mask:
+    g++: mpicxx
+
+file:
+  - type: cpp:cxx:cc
+    archiver: ar -cr
+    compiler: mpicxx -std=c++20 -DOMPI_SKIP_MPICXX -DMPICH_SKIP_MPICXX
+    linker: mpicxx

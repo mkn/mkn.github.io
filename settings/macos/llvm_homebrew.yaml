@@ -1,0 +1,16 @@
+# Homebrew's LLVM (brew install llvm), not Apple clang: its clang++ by path, masked as clang++,
+#  with its llvm-ar (see linux/clang.yaml). /opt/homebrew is Apple silicon, /usr/local Intel
+super: settings
+
+property:
+  llvm: /opt/homebrew/opt/llvm/bin
+
+compiler:
+  mask:
+    clang++: ${llvm}/clang++
+
+file:
+  - type: cpp:cxx:cc
+    archiver: ${llvm}/llvm-ar -cr
+    compiler: ${llvm}/clang++ -std=c++20
+    linker: ${llvm}/clang++

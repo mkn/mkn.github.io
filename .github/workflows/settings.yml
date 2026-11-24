@@ -1,0 +1,66 @@
+name: settings
+
+# every settings example with a ci: runner in settings/catalog.yaml builds, tests and runs the
+#  example project (example/) there with the released mkn. Weekly too: runner images change
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "41 4 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  matrix:
+    runs-on: ubuntu-24.04
+    outputs:
+      include: ${{ steps.catalog.outputs.include }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: catalog
+        run: |
+          python3 - >> "$GITHUB_OUTPUT" <<'PY'
+          import json, yaml
+          catalog = yaml.safe_load(open("settings/catalog.yaml"))
+          include = [{"os": os, "file": e["file"], "runner": e["ci"]}
+                     for os, group in catalog.items() for e in group["entries"] if e.get("ci")]
+          print("include=" + json.dumps(include))
+          PY
+
+  example:
+    needs: matrix
+    name: ${{ matrix.os }}/${{ matrix.file }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.matrix.outputs.include) }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+
+      - if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ccache mold libopenmpi-dev openmpi-bin g++-14 clang-18 llvm-18
+          curl -fsSLo mkn https://github.com/mkn/mkn/releases/latest/download/mkn_nix
+      - if: runner.os == 'macOS'
+        run: |
+          brew install llvm gcc@14 || true
+          curl -fsSLo mkn https://github.com/mkn/mkn/releases/latest/download/mkn_arm_osx
+      - if: runner.os == 'Windows'
+        run: curl -fsSLo mkn.exe https://github.com/mkn/mkn/releases/latest/download/mkn.exe
+      - if: runner.os == 'Windows' && matrix.file == 'msvc.yaml'
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: mkn clean build test run -x settings/${{ matrix.os }}/${{ matrix.file }}
+        working-directory: example
+        run: |
+          [ -f ../mkn ] && chmod +x ../mkn
+          ../mkn -v
+          KLOG=3 ../mkn clean build test run -p app -q -x "$GITHUB_WORKSPACE/settings/${{ matrix.os }}/${{ matrix.file }}"

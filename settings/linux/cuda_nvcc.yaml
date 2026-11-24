@@ -1,0 +1,12 @@
+# CUDA compiled by nvcc, .cpp files as CUDA (-x cu); host compiler flags through -Xcompiler
+super: settings
+
+env:
+  - name: PATH
+    value: /usr/local/cuda/bin
+
+file:
+  - type: cpp:cxx:cc
+    archiver: ar -cr
+    compiler: nvcc -std=c++20 -Xcompiler -fPIC -x cu --extended-lambda --expt-relaxed-constexpr
+    linker: nvcc -lcudart

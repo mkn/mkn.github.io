@@ -1,0 +1,13 @@
+# clang / clang++, C++20. llvm-ar archives: with -O mkn adds -flto, and GNU ar cannot index
+#  clang's LTO bitcode (a static library without symbols, its references undefined at the link)
+super: settings
+
+file:
+  - type: c:S
+    archiver: llvm-ar -cr
+    compiler: clang
+    linker: clang
+  - type: cpp:cxx:cc
+    archiver: llvm-ar -cr
+    compiler: clang++ -std=c++20
+    linker: clang++

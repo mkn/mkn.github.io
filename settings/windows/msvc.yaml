@@ -1,0 +1,10 @@
+# MSVC: run mkn from a Developer Command Prompt / PowerShell (vcvarsall.bat), cl and link find
+#  their headers and libraries through INCLUDE and LIB. Without gcc or clang on PATH (or with
+#  MKN_CL_PREFERRED=1) the default settings file mkn writes is this, with those paths in it
+super: settings
+
+file:
+  - type: cpp:cxx:cc:c
+    archiver: lib
+    compiler: cl -std:c++20 -EHsc
+    linker: link

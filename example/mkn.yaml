@@ -1,0 +1,13 @@
+# the project every settings example builds (see .github/workflows/settings.yml):
+#  mkn clean build test run -x <settings file>
+name: hello
+
+profile:
+- name: lib
+  inc: inc
+  src: src
+
+- name: app
+  parent: lib
+  main: main.cpp
+  test: tst/(\w).cpp

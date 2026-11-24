@@ -1,0 +1,18 @@
+# AMD HIP with ROCm under /opt/rocm: hipcc masked as g++. For a ROCm installed to /usr (a
+#  distribution package) drop env and path. --offload-arch for your GPU (rocminfo | grep gfx)
+super: settings
+
+compiler:
+  mask:
+    g++: hipcc
+
+env:
+  - name: PATH
+    value: /opt/rocm/bin
+path: /opt/rocm/lib
+
+file:
+  - type: cpp:cxx:cc
+    archiver: ar -cr
+    compiler: hipcc -std=c++20 -fPIC
+    linker: hipcc -lamdhip64

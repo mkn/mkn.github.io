@@ -1,0 +1,12 @@
+# gcc / g++, C++20: much like the default settings file mkn writes on Linux
+super: settings
+
+file:
+  - type: c:S
+    archiver: ar -cr
+    compiler: gcc
+    linker: gcc
+  - type: cpp:cxx:cc
+    archiver: ar -cr
+    compiler: g++ -std=c++20
+    linker: g++
