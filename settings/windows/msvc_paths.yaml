@@ -1,7 +1,7 @@
 # MSVC without a Developer Command Prompt: the MSVC toolset's and Windows SDK's include, library
 #  and bin directories given here, as vcvarsall.bat sets them in INCLUDE, LIB and PATH. Set the
-#  four properties for your install (see above); their values are raw, the lines using them quoted
-super: settings
+#  four properties for your install (see above); their values are raw, the lines using them quoted.
+#  mkn cannot write its default settings file without a Developer prompt, gcc or clang: this is it
 
 property:
   msvc: C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.44.35207

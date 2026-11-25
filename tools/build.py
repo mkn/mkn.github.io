@@ -178,13 +178,20 @@ def settings_page(out):
             badge = (f'<span class="badge ok" title="the example project is built, tested and run with it">built in CI: {esc(ci)}</span>'
                      if ci else '<span class="badge" title="needs hardware the CI runners lack">not built in CI</span>')
             rel = f"settings/{os_key}/{entry['file']}"
+            use = (  # default: the settings file mkn could not write itself, no super: settings
+                "Use: save as mkn's default settings file, the path its message prints: "
+                "<code>maiken/settings.yaml</code> in <code>%HOME%</code>, else in "
+                "<code>%HOMEDRIVE%%HOMEPATH%</code>; then <code>mkn build</code> needs no "
+                "<code>-x</code>"
+                if entry.get("default") else
+                f"Use: <code>mkn build -x {esc(Path(entry['file']).stem)}</code> with the file saved "
+                "next to the project or in the settings directory")
             cards.append(f"""
 <article class="example" id="{anchor}">
   <header><h3><a href="#{anchor}">{esc(entry["title"])}</a></h3>{tags}{badge}</header>
   <p>{esc(leading_comment(text))}</p>
   {code(text, "yaml")}
-  <p class="use">Use: <code>mkn build -x {esc(Path(entry["file"]).stem)}</code> with the file saved next to the
-  project or in the settings directory, or <a href="{rel}" download>download</a> /
+  <p class="use">{use}, or <a href="{rel}" download>download</a> /
   <a href="{SITE_REPO}/blob/main/{rel}">view on GitHub</a></p>
 </article>""")
         intro = markdown.markdown(group["intro"], extensions=["fenced_code", "tables"]) if group.get("intro") else ""

@@ -30,7 +30,9 @@ windows:
     environment variables, which `vcvarsall.bat` sets: a *Developer Command Prompt* or
     *Developer PowerShell* is one with them set. From one, settings need only name the tools
     ([MSVC](#windows-msvc)); mkn's own default settings file is then written with those paths. Without
-    one, a settings file gives the same paths itself ([MSVC without a Developer prompt](#windows-msvc-paths)).
+    one, and without gcc or clang, mkn cannot write that file and stops with a message pointing here:
+    the default settings file is then one you write, giving the same paths itself
+    ([MSVC without a Developer prompt](#windows-msvc-paths)).
     They come from two places:
 
     | | Directory | Include | Libraries | Tools |
@@ -54,8 +56,8 @@ windows:
     all, and the lines using it are quoted. `env:` values are raw too.
   entries:
     - {file: msvc.yaml, title: MSVC, tags: [msvc], ci: windows-latest}
-    - {file: msvc_paths.yaml, title: MSVC without a Developer prompt, tags: [msvc, windows sdk], ci: windows-latest}
-    - {file: msvc_paths_x86.yaml, title: 32 bit MSVC without a Developer prompt, tags: [msvc, windows sdk, x86], ci: windows-latest}
+    - {file: msvc_paths.yaml, title: MSVC without a Developer prompt, tags: [msvc, windows sdk], ci: windows-latest, default: true}
+    - {file: msvc_paths_x86.yaml, title: 32 bit MSVC without a Developer prompt, tags: [msvc, windows sdk, x86], ci: windows-latest, default: true}
     - {file: msvc_2015.yaml, title: Visual Studio 2015 and older, tags: [msvc, windows sdk]}
     - {file: clang.yaml, title: clang, tags: [clang], ci: windows-latest}
     - {file: csharp.yaml, title: "C#", tags: [csharp]}

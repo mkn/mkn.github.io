@@ -1,6 +1,5 @@
 # 32 bit MSVC without a Developer Command Prompt: as msvc_paths.yaml with x86 libraries and the
 #  x86 hosted compiler (HostX64/x86 cross compiles from a 64 bit host as well)
-super: settings
 
 property:
   msvc: C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.44.35207
